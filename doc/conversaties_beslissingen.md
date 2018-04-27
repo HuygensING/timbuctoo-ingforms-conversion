@@ -145,7 +145,7 @@ Voorstel oplossing om dan de @id declaraties maar in een anonieme dictionary te 
             {"@id":"http://resource.huygens.knaw.nl/ingforms/migratiegids/persoon/01cnv"},
             {"@id":"http://resource.huygens.knaw.nl/ingforms/migratiegids/persoon/01arp"}
         ],
-        ```
+```
 
 Ook niet helemaal duidelijk wat dit betekent, maar logischer dan de andere oplossing
 
