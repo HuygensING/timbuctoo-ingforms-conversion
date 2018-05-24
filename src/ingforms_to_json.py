@@ -18,6 +18,7 @@ import os, fnmatch
 from json import dump
 import argparse
 from configparser import ConfigParser
+import posixpath
 
 #basic declarations
 #indir = '/Users/rikhoekstra/develop/emigratie/ingforms'
@@ -32,7 +33,7 @@ def recursive_glob(treeroot, pattern):
     results = []
     for base, dirs, files in os.walk(treeroot):
         goodfiles = fnmatch.filter(files, pattern)
-        results.extend(os.path.join(base, f) for f in goodfiles)
+        results.extend(posixpath.join(base, f) for f in goodfiles)
     return results
 
 class SchemaConverter(object):
@@ -44,8 +45,8 @@ class SchemaConverter(object):
         self.registry = {}
         self.baseurl = baseurl
         self.basedir = os.path.split(indir)[0]
-        self.defdir = os.path.join(self.basedir, 'defdir')
-        self.listdir = os.path.join(self.defdir, 'lists')
+        self.defdir = posixpath.join(self.basedir, 'defdir')
+        self.listdir = posixpath.join(self.defdir, 'lists')
 
     def schema2context(self, infile):
         """parse ingforms schema file
@@ -74,13 +75,13 @@ class SchemaConverter(object):
             else:
                 w_field = flds
             fldname = w_field['key']
-            context[fldname] = os.path.join(baseurl,formdef['formkey'],w_field['key'])
+            context[fldname] = posixpath.join(baseurl,formdef['formkey'],w_field['key'])
 
             #add begin and end for period fields
             if fldname.find('period') > -1 and not 'begin' in context:
-                context['begin'] = os.path.join(baseurl,formdef['formkey'],w_field['key'],'begin')
-                context['end'] = os.path.join(baseurl,formdef['formkey'],w_field['key'],'end')
-                context['date']= os.path.join(baseurl,formdef['formkey'],w_field['key'],"date") #"http://www.w3.org/2001/XMLSchema#dateTime"
+                context['begin'] = posixpath.join(baseurl,formdef['formkey'],w_field['key'],'begin')
+                context['end'] = posixpath.join(baseurl,formdef['formkey'],w_field['key'],'end')
+                context['date']= posixpath.join(baseurl,formdef['formkey'],w_field['key'],"date") #"http://www.w3.org/2001/XMLSchema#dateTime"
 
             
             #recurse for embedded fields
@@ -100,18 +101,18 @@ class SchemaConverter(object):
             indir = self.defdir #hack, this changes indir to defdir, as it should here
         if schemaname == 'tekst':
             'emigration specific'
-            f = os.path.join(indir, 'tekst', 'emigratie_' + schemaname + '.xml')
+            f = posixpath.join(indir, 'tekst', 'emigratie_' + schemaname + '.xml')
         elif schemaname == 'tekstannotatie':
             'emigration specific'
-            f = os.path.join(indir, 'tekst', 'emigratie_annotatie' + '.xml')
+            f = posixpath.join(indir, 'tekst', 'emigratie_annotatie' + '.xml')
         else:
-            f = os.path.join(indir, schemaname + '.xml')
+            f = posixpath.join(indir, schemaname + '.xml')
         if os.path.exists(f):
             context = self.schema2context(f)
             nf = os.path.basename(f)
             nf = os.path.splitext(nf)[0]
             out = nf + '_jsld.json'
-            flout = open(os.path.join(indir, out), 'w')
+            flout = open(posixpath.join(indir, out), 'w')
             dump( context, flout, indent=4)
             flout.close()
             self.registry[schemaname] = context
@@ -182,14 +183,14 @@ class JsonForm(object):
             value = jd[root][key]
             try:
                 if pat.search(value):
-#                    id = os.path.join(baseurl, root, key)
+#                    id = posixpath.join(baseurl, root, key)
                     value = {"@value":value, "@type":htmld}
                     jd[root][key] = value
             except TypeError: # no string no html
                 pass
             if 'periode' in key:
                 try:
-                    typ = os.path.join(baseurl, root, 'periode')
+                    typ = posixpath.join(baseurl, root, 'periode')
                     vals = value.split('-')
                     nwval = {"@type": typ,
                             "begin":
@@ -209,8 +210,8 @@ class JsonForm(object):
                 jd[root][key] = value
 
         #add type, i.e. is the rootelement of the ingform
-        jd['@type'] = os.path.join(schemaurl, '%s' % self.collectie, root)
-        id = os.path.join(baseurl, root, self.name)
+        jd['@type'] = posixpath.join(schemaurl, '%s' % self.collectie, root)
+        id = posixpath.join(baseurl, root, self.name)
         jd['@id'] = id
         
         #link template
@@ -251,11 +252,11 @@ class JsonForm(object):
                                                   typenaam=rt,
                                                   filename=item)
                         if isinstance(value, list):
-                            value = {key:[{"@id":os.path.join(typ, i),
+                            value = {key:[{"@id":posixpath.join(typ, i),
                                      } for i in value],
                                      "@type":typ}
                         else:
-                            value = {key:{"@id":os.path.join(typ, value),
+                            value = {key:{"@id":posixpath.join(typ, value),
                                      },
                                      "@type":typ}
                         rjd[key] = value
@@ -263,11 +264,11 @@ class JsonForm(object):
                         pass
         njd = {}
         njd["@type"] = jd["@type"]
-        njd["@id"] = os.path.join(njd["@type"], self.name)
+        njd["@id"] = posixpath.join(njd["@type"], self.name)
         for key in jd[root]:
             njd[key] = jd[root][key]
         if root == 'autopsie':
-            njd['@type'] = os.path.join(baseurl,self.collectie[0],"text")
+            njd['@type'] = posixpath.join(baseurl,self.collectie[0],"text")
         return njd
 
 
@@ -279,8 +280,8 @@ class JsonForm(object):
         #add some general properties that are added regardless of the schema.
         #Though these are also part of the single file output
         try:
-            fd['aantekeningen'] = os.path.join(self.baseurl, 'aantekeningen')
-            fd['datum_laatste_verandering'] = os.path.join(self.baseurl, 'last_modified')
+            fd['aantekeningen'] = posixpath.join(self.baseurl, 'aantekeningen')
+            fd['datum_laatste_verandering'] = posixpath.join(self.baseurl, 'last_modified')
             jd['@context'] = fd
         except TypeError:
             pass # cant find the schema, so leave it out
@@ -312,10 +313,10 @@ def convert(indir='indir',
                                  collectie,
                                  )
             contextualized = converted.with_context()
-            outdir = os.path.join(indir, 'out')
+            outdir = posixpath.join(indir, 'out')
             outnm = os.path.split(item)[1]
             outnm = os.path.splitext(outnm)[0] + '.json'
-            outfl = os.path.join(outdir, outnm)
+            outfl = posixpath.join(outdir, outnm)
             outfile = open(outfl, 'w')
             dump(contextualized, outfile, indent=4)
 
@@ -365,12 +366,12 @@ def single_file_output(indir='indir',
             for k in context:
                 contexts[k] = context[k]
     #add some general properties
-    contexts['aantekeningen'] = os.path.join(baseurl, 'aantekeningen')
-    contexts['datum_laatste_verandering'] = os.path.join(baseurl, 'last_modified')
+    contexts['aantekeningen'] = posixpath.join(baseurl, 'aantekeningen')
+    contexts['datum_laatste_verandering'] = posixpath.join(baseurl, 'last_modified')
     dumpable["@context"] = contexts
     dumpable["@graph"] = graph
-    outf = os.path.join(outdir, outfl)
-    outfile = open(outf, 'w')
+    outf = posixpath.join(outdir, outfl)
+    outfile = open(outfl, 'w')
     dump(dumpable, outfile, indent=4)
     outfile.close()
     print (types)
@@ -425,15 +426,15 @@ if __name__ == "__main__":
     cp = ConfigParser()
     cp.read(args['optionfile'])
     basedir = cp.get('location', 'basedir')
-    indir = os.path.join(basedir, cp.get('location', 'indir'))
-    defdir = os.path.join(basedir, cp.get('location', 'defdir'))
-    outdir = os.path.join(basedir, cp.get('output', 'outdir'))
+    indir = posixpath.join(basedir, cp.get('location', 'indir'))
+    defdir = posixpath.join(basedir, cp.get('location', 'defdir'))
+    outdir = posixpath.join(basedir, cp.get('output', 'outdir'))
     if not os.path.exists(outdir):
         os.makedirs(outdir)
-    outfile = os.path.join(outdir, cp.get('output', 'outfile'))
+    outfile = posixpath.join(outdir, cp.get('output', 'outfile'))
     print ('debug: ', outfile)
     baseurl = cp.get('urls', 'base')
-    targeturl = os.path.join(baseurl, cp.get('urls', 'collectionurl'))
+    targeturl = posixpath.join(baseurl, cp.get('urls', 'collectionurl'))
     ed = cp['exclude_dirs']
     excludedirs = [i[1] for i in ed.items()]
     collectie = cp.get('collection', 'collection')
