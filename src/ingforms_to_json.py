@@ -266,7 +266,7 @@ class JsonForm(object):
         njd["@type"] = jd["@type"]
         njd["@id"] = posixpath.join(njd["@type"], self.name)
         for key in jd[root]:
-            njd[key] = jd[root][key]
+            njd["ingforms:"+key] = jd[root][key]
         if root == 'autopsie':
             njd['@type'] = posixpath.join(baseurl,self.collectie[0],"text")
         return njd
@@ -368,13 +368,13 @@ def single_file_output(indir='indir',
     #add some general properties
     contexts['aantekeningen'] = posixpath.join(baseurl, 'aantekeningen')
     contexts['datum_laatste_verandering'] = posixpath.join(baseurl, 'last_modified')
+    contexts['ingforms'] = "http://ingforms.example.org/"
     dumpable["@context"] = contexts
     dumpable["@graph"] = graph
     outf = posixpath.join(outdir, outfl)
     outfile = open(outfl, 'w')
     dump(dumpable, outfile, indent=4)
     outfile.close()
-    print (types)
     print ("json written to %s" %outf)
     print ("number of files %s" % len(ingforms))      
 
@@ -432,13 +432,11 @@ if __name__ == "__main__":
     if not os.path.exists(outdir):
         os.makedirs(outdir)
     outfile = posixpath.join(outdir, cp.get('output', 'outfile'))
-    print ('debug: ', outfile)
     baseurl = cp.get('urls', 'base')
     targeturl = posixpath.join(baseurl, cp.get('urls', 'collectionurl'))
     ed = cp['exclude_dirs']
     excludedirs = [i[1] for i in ed.items()]
     collectie = cp.get('collection', 'collection')
-    print(sf)
     main(indir=indir,
             outfl=outfile,
             defdir=defdir,
