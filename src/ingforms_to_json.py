@@ -174,7 +174,7 @@ class JsonForm(object):
         #html thingies
         htmld = "http://www.w3.org/1999/02/22-rdf-syntax-ns#HTML"
         pat = re.compile("^<p>")
-        baseurl = "http://resource.huygens.knaw.nl/ingforms/migratiegids/"
+        baseurl = "http://resources.huygens.knaw.nl/ingforms/migratiegids/"
         
         rt = root
         for key in list(self.infile[root].keys()):
@@ -215,7 +215,7 @@ class JsonForm(object):
         jd['@id'] = id
         
         #link template
-        linktemplate = "http://resource.huygens.knaw.nl/ingforms/{collectienaam}/{typenaam}/{filename}"
+        linktemplate = "{base}{collectienaam}/{typenaam}/{filename}"
         
         #add all formfields by key
         rjd = jd[root]
@@ -369,6 +369,7 @@ def single_file_output(indir='indir',
     contexts['aantekeningen'] = posixpath.join(baseurl, 'aantekeningen')
     contexts['datum_laatste_verandering'] = posixpath.join(baseurl, 'last_modified')
     contexts['ingforms'] = "http://ingforms.example.org/"
+    contexts[collectie] = "%s%s/" % (baseurl,collectie)
     dumpable["@context"] = contexts
     dumpable["@graph"] = graph
     outf = posixpath.join(outdir, outfl)
