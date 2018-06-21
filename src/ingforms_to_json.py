@@ -163,6 +163,36 @@ class JsonForm(object):
         jd = xmltodict.parse(doc)
         return jd
     
+    def platslaan(self, keyword, value):
+        newarray = []
+#       print ("value: %s" % value)
+#       print ("class: %s" % value.__class__)
+        if isinstance (value, str):
+            return [value]
+        if isinstance (value, list):
+            for item in range(len(value)):
+                newarray += self.platslaan(keyword, value[item])
+#               print (newarray)
+#               newarray.append(value[key][item][keyword])
+        else:
+            if isinstance (value, OrderedDict):
+#               print ("boolean? %s" % isinstance(value, OrderedDict))
+                for key in list(value.keys()):
+#                   print ("%s" % value[key])
+#                   print ("%s" % value[key].__class__)
+#                   print ("%s" % isinstance(value[key], list))
+                    newarray += self.platslaan(keyword, value[key])
+#                   print (newarray)
+#                   if (isinstance(value[key], OrderedDict)):
+#                       for key in list(value.keys()):
+#                           print ("%s" % value[key][key])
+#                   else:
+#                       for item in range(len(value[key])):
+#                           print ("(array) %s" % value[key][item][keyword])
+#                           newarray.append(value[key][item][keyword])
+#       print (newarray)
+        return newarray
+
     def form2json(self, schemaurl="url"):
         """parse fields to json-ld 
         and add schema"""
@@ -178,9 +208,13 @@ class JsonForm(object):
         
         rt = root
         for key in list(self.infile[root].keys()):
+#           print ("key: %s" % key)
 #            newkey = key
 #            
             value = jd[root][key]
+            for keyword in ['trefwoord','thema','trefwoorden','namen']:
+                if keyword in key:
+                    jd[root][key] = self.platslaan(keyword, value)
             try:
                 if pat.search(value):
 #                    id = posixpath.join(baseurl, root, key)
@@ -188,6 +222,19 @@ class JsonForm(object):
                     jd[root][key] = value
             except TypeError: # no string no html
                 pass
+            if 'datum' == key:
+                if value is not None:
+                    try:
+                        day = value['day']
+                        month = value['month']
+                        year = value['year']
+                        nwval = {"@type":"http://www.w3.org/2001/XMLSchema#dateTime",
+                                "@value":"%02s-%02s-%04s" % (day, month, year)
+                        }
+                        value = nwval
+                    except (AttributeError, IndexError):
+                        pass # we keep the old value
+                    jd[root][key] = value
             if 'periode' in key:
                 try:
                     typ = posixpath.join(baseurl, root, 'periode')
