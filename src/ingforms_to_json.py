@@ -163,7 +163,7 @@ class JsonForm(object):
         jd = xmltodict.parse(doc)
         return jd
     
-    def platslaan(self, keyword, value):
+    def flatten(self, keyword, value):
         newarray = []
 #       print ("value: %s" % value)
 #       print ("class: %s" % value.__class__)
@@ -171,7 +171,7 @@ class JsonForm(object):
             return [value]
         if isinstance (value, list):
             for item in range(len(value)):
-                newarray += self.platslaan(keyword, value[item])
+                newarray += self.flatten(keyword, value[item])
 #               print (newarray)
 #               newarray.append(value[key][item][keyword])
         else:
@@ -181,7 +181,7 @@ class JsonForm(object):
 #                   print ("%s" % value[key])
 #                   print ("%s" % value[key].__class__)
 #                   print ("%s" % isinstance(value[key], list))
-                    newarray += self.platslaan(keyword, value[key])
+                    newarray += self.flatten(keyword, value[key])
 #                   print (newarray)
 #                   if (isinstance(value[key], OrderedDict)):
 #                       for key in list(value.keys()):
@@ -192,6 +192,46 @@ class JsonForm(object):
 #                           newarray.append(value[key][item][keyword])
 #       print (newarray)
         return newarray
+
+    def add_ingforms_prefix(self, value, key_name=""):
+        print ("add prefix: %s" % value )
+        print(value.__class__)
+#        return value
+        if isinstance (value, str):
+            print ("new value: %s" % value )
+            return value
+        if isinstance(value, list):
+            print("list")
+            newarray = []
+            for item in range(len(value)):
+                res = self.add_ingforms_prefix(value[item])
+                print("res: %s (%s)" % (res, res.__class__))
+                newarray.append(self.add_ingforms_prefix(value[item],key_name))
+            value = newarray
+        else:
+            if isinstance(value, OrderedDict):
+                newvalue = value.copy()
+                for key in value:
+                    res = self.add_ingforms_prefix(value[key],key)
+                    if key != '@type' and key != '@value':
+                        print ("key: %s value: %s" % (key,value[key]) )
+                        if not key.startswith("ingforms:"):
+                            newkey = "ingforms:%s" % key
+                            print ("newkey: %s" % (newkey) )
+                            del newvalue[key]
+                            newvalue[newkey] = res
+                            if not "@type" in newvalue and not key_name == "" :
+                                newvalue["@type"] = "http://resource.huygens.knaw.nl/ingforms/%s" % key_name
+                                newvalue.move_to_end("@type", last=False)
+
+#               value = self.add_ingforms_prefix(value)
+                print("dict")
+                value = newvalue
+            else:
+               print("other")
+#                   value = { newkey: value[key] }
+        print ("new value: %s" % value )
+        return value
 
     def form2json(self, schemaurl="url"):
         """parse fields to json-ld 
@@ -204,17 +244,17 @@ class JsonForm(object):
         #html thingies
         htmld = "http://www.w3.org/1999/02/22-rdf-syntax-ns#HTML"
         pat = re.compile("^<p>")
-        baseurl = "http://resources.huygens.knaw.nl/ingforms/migratiegids/"
+        baseurl = "http://resource.huygens.knaw.nl/ingforms/"
         
         rt = root
         for key in list(self.infile[root].keys()):
-#           print ("key: %s" % key)
+            print ("key: %s" % key)
 #            newkey = key
 #            
             value = jd[root][key]
-            for keyword in ['trefwoord','thema','trefwoorden','namen']:
-                if keyword in key:
-                    jd[root][key] = self.platslaan(keyword, value)
+#            for keyword in ['trefwoord','thema','trefwoorden','namen','personen','matsoort','commissie']:
+#                if keyword == key:
+#                    jd[root][key] = self.flatten(keyword, value)
             try:
                 if pat.search(value):
 #                    id = posixpath.join(baseurl, root, key)
@@ -240,21 +280,32 @@ class JsonForm(object):
                     typ = posixpath.join(baseurl, root, 'periode')
                     vals = value.split('-')
                     nwval = {"@type": typ,
-                            "begin":
+                            "ingforms:begin":
                                 {
                                     "@type": typ + '/begin',
-                                     "date": {
+                                     "ingforms:date": {
                                              "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
                                              "@value":"31-12-%s" % vals[0]}},
-                             "end":{"@type": typ + '/end',
-                                     "date": {
+                             "ingforms:end":{"@type": typ + '/end',
+                                     "ingforms:date": {
                                              "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
                                              "@value":"31-12-%s" % vals[1]}}
                     }
+#                    typ = posixpath.join(baseurl, root, 'ingforms:periode')
                     value = nwval
                 except (AttributeError, IndexError):
                     pass # we keep the old value
                 jd[root][key] = value
+            if isinstance(jd[root][key], dict):
+                jd[root][key] = self.add_ingforms_prefix(jd[root][key])
+#                if not key.startswith("ingforms:"):
+#                    jd[root]["ingforms:%s" % key] = jd[root][key]
+                if not "@type" in jd[root][key]:
+                    jd[root][key]["@type"] = "http://resource.huygens.knaw.nl/ingforms/%s" % key
+                    jd[root][key].move_to_end("@type", last=False)
+#                for key_2 in jd[root][key]:
+#                    if key_2 != '@type' and key_2 != '@value':
+#                        print ("%s : %s" % (key_2,jd[root][key][key_2] ) )
 
         #add type, i.e. is the rootelement of the ingform
         jd['@type'] = posixpath.join(schemaurl, '%s' % self.collectie, root)
@@ -314,6 +365,10 @@ class JsonForm(object):
         njd["@id"] = posixpath.join(njd["@type"], self.name)
         for key in jd[root]:
             njd["ingforms:"+key] = jd[root][key]
+            if isinstance(jd[root][key], dict):
+                for key_2 in jd[root][key]:
+                    if key_2 != '@type' and key_2 != '@value':
+                        print ("%s : %s" % (key_2,jd[root][key][key_2] ) )
         if root == 'autopsie':
             njd['@type'] = posixpath.join(baseurl,self.collectie[0],"text")
         return njd
