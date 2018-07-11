@@ -138,7 +138,8 @@ class JsonForm(object):
                  indir='', 
                  infile='',
                  url='', 
-                 collectie=''):
+                 collectie='',
+                 abbr=''):
         """parse ingforms xmlfile to json-ld
         taking a lxml etree as input"""
         self.infile = self.form2dict(infile)
@@ -153,87 +154,84 @@ class JsonForm(object):
         self.registry = SchemaConverter(indir=indir,
                                         defdir=defdir,
                                         baseurl=url)
-        self.jsonfl = self.form2json(schemaurl=url)
+        self.jsonfl = self.form2json(schemaurl=url,abbr=abbr)
 
-    
+    def jd_onderzoek(self,jd,indent,parent):
+        new_jd = jd
+        indent += "    "
+        if isinstance (jd, str):
+            print("%s%s" % (indent,jd))
+            new_jd = jd
+        if isinstance (jd, OrderedDict):
+            new_jd = OrderedDict()
+            for key in list(jd.keys()):
+                new_key = key
+                if parent.startswith(new_key):
+                    new_key = parent + "s"
+                print ("%s%s (key) (parent: %s):" % (indent,new_key,parent))
+                new_jd[new_key] = self.jd_onderzoek(jd[key],indent,new_key)
+        if isinstance (jd, list):
+            new_jd = []
+            print ("%slist:" % indent)
+            for item in range(len(jd)):
+                new_jd.append(self.jd_onderzoek(jd[item],indent,parent))
+        return new_jd
+
+ 
     def form2dict(self, infile):
         """parse ingform to python dictionary"""
         xmlt = open(infile)
         doc = xmlt.read()
         jd = xmltodict.parse(doc)
-        return jd
-    
+
+        indent = ""
+        print("jd_onderzoek")
+        new_jd = self.jd_onderzoek(jd,indent,"")
+        print("==end==")
+        if len("%s" % jd ) != len("%s" % new_jd ):
+            print("%d ongelijk aan %d" % (len("%s" % jd ),len("%s" % new_jd )) )
+        return new_jd
+
+# this function is not used at this moment
     def flatten(self, keyword, value):
         newarray = []
-#       print ("value: %s" % value)
-#       print ("class: %s" % value.__class__)
         if isinstance (value, str):
             return [value]
         if isinstance (value, list):
             for item in range(len(value)):
                 newarray += self.flatten(keyword, value[item])
-#               print (newarray)
-#               newarray.append(value[key][item][keyword])
         else:
             if isinstance (value, OrderedDict):
-#               print ("boolean? %s" % isinstance(value, OrderedDict))
                 for key in list(value.keys()):
-#                   print ("%s" % value[key])
-#                   print ("%s" % value[key].__class__)
-#                   print ("%s" % isinstance(value[key], list))
                     newarray += self.flatten(keyword, value[key])
-#                   print (newarray)
-#                   if (isinstance(value[key], OrderedDict)):
-#                       for key in list(value.keys()):
-#                           print ("%s" % value[key][key])
-#                   else:
-#                       for item in range(len(value[key])):
-#                           print ("(array) %s" % value[key][item][keyword])
-#                           newarray.append(value[key][item][keyword])
-#       print (newarray)
         return newarray
 
-    def add_ingforms_prefix(self, value, key_name=""):
-        print ("add prefix: %s" % value )
-        print(value.__class__)
-#        return value
+    def add_ingforms_prefix(self, value, key_name="key", abbr="abbr"):
         if isinstance (value, str):
-            print ("new value: %s" % value )
             return value
         if isinstance(value, list):
-            print("list")
             newarray = []
             for item in range(len(value)):
-                res = self.add_ingforms_prefix(value[item])
-                print("res: %s (%s)" % (res, res.__class__))
-                newarray.append(self.add_ingforms_prefix(value[item],key_name))
+                newarray.append(self.add_ingforms_prefix(value[item],key_name,abbr))
             value = newarray
         else:
             if isinstance(value, OrderedDict):
                 newvalue = value.copy()
                 for key in value:
-                    res = self.add_ingforms_prefix(value[key],key)
+                    res = self.add_ingforms_prefix(value[key],key,abbr)
                     if key != '@type' and key != '@value':
-                        print ("key: %s value: %s" % (key,value[key]) )
                         if not key.startswith("ingforms:"):
                             newkey = "ingforms:%s" % key
-                            print ("newkey: %s" % (newkey) )
                             del newvalue[key]
                             newvalue[newkey] = res
                             if not "@type" in newvalue and not key_name == "" :
-                                newvalue["@type"] = "http://resource.huygens.knaw.nl/ingforms/%s" % key_name
+                                newvalue["@type"] = "%s:%s" % (abbr, key_name)
                                 newvalue.move_to_end("@type", last=False)
 
-#               value = self.add_ingforms_prefix(value)
-                print("dict")
                 value = newvalue
-            else:
-               print("other")
-#                   value = { newkey: value[key] }
-        print ("new value: %s" % value )
         return value
 
-    def form2json(self, schemaurl="url"):
+    def form2json(self, schemaurl="url", abbr="abbr"):
         """parse fields to json-ld 
         and add schema"""
 
@@ -248,9 +246,6 @@ class JsonForm(object):
         
         rt = root
         for key in list(self.infile[root].keys()):
-            print ("key: %s" % key)
-#            newkey = key
-#            
             value = jd[root][key]
 #            for keyword in ['trefwoord','thema','trefwoorden','namen','personen','matsoort','commissie']:
 #                if keyword == key:
@@ -277,7 +272,7 @@ class JsonForm(object):
                     jd[root][key] = value
             if 'periode' in key:
                 try:
-                    typ = posixpath.join(baseurl, root, 'periode')
+                    typ = posixpath.join(("%s:%s" % (abbr, root)), 'periode')
                     vals = value.split('-')
                     nwval = {"@type": typ,
                             "ingforms:begin":
@@ -297,19 +292,18 @@ class JsonForm(object):
                     pass # we keep the old value
                 jd[root][key] = value
             if isinstance(jd[root][key], dict):
-                jd[root][key] = self.add_ingforms_prefix(jd[root][key])
-#                if not key.startswith("ingforms:"):
-#                    jd[root]["ingforms:%s" % key] = jd[root][key]
+                jd[root][key] = self.add_ingforms_prefix(jd[root][key],key,abbr)
                 if not "@type" in jd[root][key]:
-                    jd[root][key]["@type"] = "http://resource.huygens.knaw.nl/ingforms/%s" % key
+#                   jd[root][key]["@type"] = "http://resource.huygens.knaw.nl/ingforms/%s" % key
+                    jd[root][key]["@type"] = "%s:%s" % ( abbr,key )
                     jd[root][key].move_to_end("@type", last=False)
-#                for key_2 in jd[root][key]:
-#                    if key_2 != '@type' and key_2 != '@value':
-#                        print ("%s : %s" % (key_2,jd[root][key][key_2] ) )
 
         #add type, i.e. is the rootelement of the ingform
         jd['@type'] = posixpath.join(schemaurl, '%s' % self.collectie, root)
-        id = posixpath.join(baseurl, root, self.name)
+        prefix = "%s:%s" % ( abbr, root )
+#        jd['@type'] = posixpath.join(prefix, root)
+        jd['@type'] = prefix
+        id = posixpath.join(baseurl, self.name)
         jd['@id'] = id
         
         #link template
@@ -396,7 +390,8 @@ def convert(indir='indir',
              baseurl='baseurl',
              collectie='collectie',
              exclude=[],
-             outfl='outfl'
+             outfl='outfl',
+             abbr='abbr'
             ):
     """convert an ingforms directory"""
 
@@ -413,6 +408,7 @@ def convert(indir='indir',
                                  item,
                                  baseurl,
                                  collectie,
+                                 abbr,
                                  )
             contextualized = converted.with_context()
             outdir = posixpath.join(indir, 'out')
@@ -436,7 +432,8 @@ def single_file_output(indir='indir',
              collectie='collectie',
              exclude=[],
              outdir='outdir',
-             outfl='outfl'
+             outfl='outfl',
+             abbr='abbr'
             ):
     """convert an ingforms directory to single file. This is too different from
     multifile con"""
@@ -457,6 +454,7 @@ def single_file_output(indir='indir',
                                  item,
                                  baseurl,
                                  collectie,
+                                 abbr,
                                  )
             graph.append(converted.jsonfl)
             if converted.root not in types:
@@ -489,7 +487,8 @@ def main(indir='indir',
              collectie='collectie',
              exclude=[],
              outfl='outfl',
-             single_file=False):
+             single_file=False,
+             abbr='abbr'):
     """converts a ingforms project and all files in it to json"""
     
     if single_file == True:
@@ -499,7 +498,8 @@ def main(indir='indir',
             baseurl=baseurl,
             collectie=collectie,
             exclude=exclude,
-            outfl=outfl)
+            outfl=outfl,
+            abbr=abbr)
     else:
         convert(indir=indir,
                 defdir=defdir,
@@ -507,7 +507,8 @@ def main(indir='indir',
                 baseurl=baseurl,
                 collectie=collectie,
                 exclude=exclude,
-                outfl=outfl)
+                outfl=outfl,
+                abbr=abbr)
 
 
 
@@ -540,6 +541,7 @@ if __name__ == "__main__":
     ed = cp['exclude_dirs']
     excludedirs = [i[1] for i in ed.items()]
     collectie = cp.get('collection', 'collection')
+    abbrtype = cp.get('abbreviations','abbrtype')
     main(indir=indir,
             outfl=outfile,
             defdir=defdir,
@@ -547,4 +549,5 @@ if __name__ == "__main__":
             baseurl=baseurl,
             collectie=collectie,
             exclude=excludedirs,
-            single_file=sf)
+            single_file=sf,
+            abbr=abbrtype)
