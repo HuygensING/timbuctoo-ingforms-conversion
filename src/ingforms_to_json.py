@@ -148,13 +148,14 @@ class JsonForm(object):
         self.name = flname
         self.root = list(self.infile.keys())[0]
         self.collectie=collectie,
+        self.abbr=abbr,
         self.baseurl = url,
         if type(self.baseurl) == tuple:
             self.baseurl = self.baseurl[0]
         self.registry = SchemaConverter(indir=indir,
                                         defdir=defdir,
                                         baseurl=url)
-        self.jsonfl = self.form2json(schemaurl=url,abbr=abbr)
+        self.jsonfl = self.form2json(schemaurl=url,collection=collectie,abbr=abbr)
 
     def jd_onderzoek(self,jd,indent,parent):
         new_jd = jd
@@ -188,8 +189,6 @@ class JsonForm(object):
         print("jd_onderzoek")
         new_jd = self.jd_onderzoek(jd,indent,"")
         print("==end==")
-        if len("%s" % jd ) != len("%s" % new_jd ):
-            print("%d ongelijk aan %d" % (len("%s" % jd ),len("%s" % new_jd )) )
         return new_jd
 
 # this function is not used at this moment
@@ -231,7 +230,7 @@ class JsonForm(object):
                 value = newvalue
         return value
 
-    def form2json(self, schemaurl="url", abbr="abbr"):
+    def form2json(self, schemaurl="url", collection="collection", abbr="abbr"):
         """parse fields to json-ld 
         and add schema"""
 
@@ -257,22 +256,36 @@ class JsonForm(object):
                     jd[root][key] = value
             except TypeError: # no string no html
                 pass
-            if 'datum' == key:
+            wijzig_datum = 'datum' == key
+            wijzig_datum_special = 'date_document' == key
+            wijzig_datum_special |= 'verbaal' == key
+            wijzig_datum_special |= 'date_besluit' == key
+            wijzig_datum_special |= 'date_regulation' == key
+            wijzig_datum_special |= 'besluitens' == key
+            wijzig_datum |= wijzig_datum_special
+            if wijzig_datum:
                 if value is not None:
                     try:
                         day = value['day']
                         month = value['month']
                         year = value['year']
-                        nwval = {"@type":"http://www.w3.org/2001/XMLSchema#dateTime",
+                        if wijzig_datum_special:
+                            nwval = {
+                                "ingforms:date": { "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
+                                "@value":"%02s-%02s-%04s" % (day, month, year) },
+                                "ingforms:comment":value['comment']
+                                }
+                        else:
+                            nwval = {"@type":"http://www.w3.org/2001/XMLSchema#dateTime",
                                 "@value":"%02s-%02s-%04s" % (day, month, year)
-                        }
+                            }
                         value = nwval
                     except (AttributeError, IndexError):
                         pass # we keep the old value
                     jd[root][key] = value
             if 'periode' in key:
                 try:
-                    typ = posixpath.join(("%s:%s" % (abbr, root)), 'periode')
+                    typ = posixpath.join(("%s:%s" % (collection, root)), 'periode')
                     vals = value.split('-')
                     nwval = {"@type": typ,
                             "ingforms:begin":
@@ -292,18 +305,21 @@ class JsonForm(object):
                     pass # we keep the old value
                 jd[root][key] = value
             if isinstance(jd[root][key], dict):
-                jd[root][key] = self.add_ingforms_prefix(jd[root][key],key,abbr)
+                jd[root][key] = self.add_ingforms_prefix(jd[root][key],key,collection)
                 if not "@type" in jd[root][key]:
 #                   jd[root][key]["@type"] = "http://resource.huygens.knaw.nl/ingforms/%s" % key
-                    jd[root][key]["@type"] = "%s:%s" % ( abbr,key )
-                    jd[root][key].move_to_end("@type", last=False)
+                    jd[root][key]["@type"] = "%s:%s" % ( collection,key )
+                    print(jd[root][key].__class__)
+                    if isinstance(jd[root][key], OrderedDict):
+                        jd[root][key].move_to_end("@type", last=False)
 
         #add type, i.e. is the rootelement of the ingform
-        jd['@type'] = posixpath.join(schemaurl, '%s' % self.collectie, root)
+        jd['@type'] = posixpath.join(schemaurl, '%s' % self.abbr, root)
         prefix = "%s:%s" % ( abbr, root )
 #        jd['@type'] = posixpath.join(prefix, root)
         jd['@type'] = prefix
-        id = posixpath.join(baseurl, self.name)
+#       id = posixpath.join(baseurl, self.name)
+        id = posixpath.join(prefix, self.name)
         jd['@id'] = id
         
         #link template
@@ -459,17 +475,22 @@ def single_file_output(indir='indir',
             graph.append(converted.jsonfl)
             if converted.root not in types:
                 types.append(converted.root)
+    print("types:")
+    for t in types:
+        print(t)
     outdir = outdir
     for sch in types:
         context = SchemaConverter().getschema(sch)
         if context != None:
             for k in context:
+                print("%s: %s" % (k,context[k]))
                 contexts[k] = context[k]
     #add some general properties
     contexts['aantekeningen'] = posixpath.join(baseurl, 'aantekeningen')
     contexts['datum_laatste_verandering'] = posixpath.join(baseurl, 'last_modified')
     contexts['ingforms'] = "http://ingforms.example.org/"
     contexts[collectie] = "%s%s/" % (baseurl,collectie)
+    contexts[abbr] = "%s%s/" % (baseurl,abbr)
     dumpable["@context"] = contexts
     dumpable["@graph"] = graph
     outf = posixpath.join(outdir, outfl)
@@ -551,3 +572,5 @@ if __name__ == "__main__":
             exclude=excludedirs,
             single_file=sf,
             abbr=abbrtype)
+
+
