@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="wetgeving">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="staatsblad">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="year" type="xs:unsignedShort" />
+              <xs:element name="comment" type="xs:unsignedByte" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="bijblad" type="xs:unsignedByte" />
+        <xs:element name="other_law" type="xs:string" />
+        <xs:element name="date_regulation">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="year" type="xs:unsignedShort" />
+              <xs:element name="month" type="xs:unsignedByte" />
+              <xs:element name="day" type="xs:unsignedByte" />
+              <xs:element name="comment" type="xs:unsignedByte" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="section_number" type="xs:string" />
+        <xs:element name="date_besluit">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="year" type="xs:unsignedShort" />
+              <xs:element name="month" type="xs:unsignedByte" />
+              <xs:element name="day" type="xs:unsignedByte" />
+              <xs:element name="comment" type="xs:unsignedByte" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="short_description" type="xs:string" />
+        <xs:element name="scan" type="xs:string" />
+        <xs:element name="link_scan" type="xs:string" />
+        <xs:element name="remarks" type="xs:string" />
+        <xs:element name="keyword_geography">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" name="geography">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="keyword" type="xs:string" />
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="keyword_person" />
+        <xs:element name="keyword_islam">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="keyword" type="xs:string" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="keyword_hbco">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" name="keyword" type="xs:string" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="keyword_pc">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" name="keyword" type="xs:string" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="keyword_cc">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" name="keyword" type="xs:string" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="related_records_staatsblad">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="relation" type="xs:string" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="related_records_verbaal" />
+        <xs:element name="related_records_besluiten" />
+        <xs:element name="related_records_mailrapporten" />
+        <xs:element name="reference_kviv" />
+        <xs:element name="aantekeningen" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
+

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="mailrapporten">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="mailrapport">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="year" type="xs:unsignedShort" />
+              <xs:element name="comment" type="xs:string" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="archival_section_number" />
+        <xs:element name="secret" />
+        <xs:element name="decisionmaker" />
+        <xs:element name="date_besluit">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="year" />
+              <xs:element name="month" />
+              <xs:element name="day" />
+              <xs:element name="comment" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="author" />
+        <xs:element name="date_document">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="year" />
+              <xs:element name="month" />
+              <xs:element name="day" />
+              <xs:element name="comment" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="addressee" />
+        <xs:element name="short_description" />
+        <xs:element name="mailrapport_invnr" />
+        <xs:element name="remarks" />
+        <xs:element name="keyword_geography">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" name="geography">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="keyword" type="xs:string" />
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="keyword_person">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" name="person">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="keyword" type="xs:string" />
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="keyword_islam">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" name="keyword" type="xs:string" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="keyword_hbco">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" name="keyword" type="xs:string" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="keyword_pc">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" name="keyword" type="xs:string" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="keyword_cc">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" name="keyword" type="xs:string" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="related_records_mailrapporten">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="relation" type="xs:string" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="related_records_verbaal">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="relation" type="xs:string" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="related_records_besluiten">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="relation" type="xs:string" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="related_records_staatsblad">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="relation" type="xs:string" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="reference_kviv" />
+        <xs:element name="aantekeningen" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
+

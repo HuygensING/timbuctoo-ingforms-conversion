@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created with Liquid Technologies Online Tools 1.0 (https://www.liquid-technologies.com) -->
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="dossier">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="dossier" type="xs:unsignedShort" />
+        <xs:element name="section_number" type="xs:string" />
+        <xs:element name="titledossier" type="xs:string" />
+        <xs:element name="short_description" type="xs:string" />
+        <xs:element name="remarks" type="xs:string" />
+        <xs:element name="keyword_geography">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="geography">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="keyword" type="xs:string" />
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="keyword_person">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" name="person">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="keyword" type="xs:string" />
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="keyword_islam">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" name="keyword" type="xs:string" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="keyword_hbco" />
+        <xs:element name="keyword_pc">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" name="keyword" type="xs:string" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="keyword_cc">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" name="keyword" type="xs:string" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="related_records_mailrapporten">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="relation" type="xs:string" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="related_records_verbaal" />
+        <xs:element name="related_records_besluiten" />
+        <xs:element name="related_records_staatsblad" />
+        <xs:element name="aantekeningen" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
+
