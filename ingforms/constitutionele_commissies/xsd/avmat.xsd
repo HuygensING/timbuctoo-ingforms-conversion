@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="avmat">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="titel" type="xs:string" />
+        <xs:element name="bijschrift" />
+        <xs:element name="maker" type="xs:string" />
+        <xs:element name="matsoort">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="mat" type="xs:string" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="vindplaats" type="xs:string" />
+        <xs:element name="documentnr" type="xs:unsignedByte" />
+        <xs:element name="rechthebbenden" type="xs:string" />
+        <xs:element name="datum">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="year" type="xs:unsignedShort" />
+              <xs:element name="month" />
+              <xs:element name="day" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="thema">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" name="thema">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="thema">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="thema" type="xs:string" />
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="subthema" type="xs:string" />
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="commissie">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="commissie" type="xs:string" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="personen">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="persoon">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="persoon" type="xs:string" />
+                    <xs:element name="opmerkingen" />
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="beschrijving" type="xs:string" />
+        <xs:element name="geselecteerd" type="xs:string" />
+        <xs:element name="kosten" />
+        <xs:element name="status" />
+        <xs:element name="naambestand" type="xs:string" />
+        <xs:element name="opmerkingen" type="xs:string" />
+        <xs:element name="aantekeningen" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
+

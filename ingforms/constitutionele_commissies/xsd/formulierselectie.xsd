@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="formulierselectie">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="formnr" type="xs:string" />
+        <xs:element name="documentnaam" type="xs:string" />
+        <xs:element name="naam_staatscommissie" type="xs:string" />
+        <xs:element name="aard_stuk" type="xs:string" />
+        <xs:element name="ontwikkelingsstadium" type="xs:string" />
+        <xs:element name="datum">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="year" type="xs:unsignedShort" />
+              <xs:element name="month" type="xs:unsignedByte" />
+              <xs:element name="day" type="xs:unsignedByte" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="opm_datum" type="xs:string" />
+        <xs:element name="vindplaats" type="xs:string" />
+        <xs:element name="bronfragment" type="xs:string" />
+        <xs:element name="annotatie">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" name="anno">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="ankernaam" type="xs:unsignedByte" />
+                    <xs:element name="annotatie_tekst" type="xs:string" />
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="aant_annotatie" type="xs:string" />
+        <xs:element name="paginas" type="xs:string" />
+        <xs:element name="thema">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" name="thema">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="thema">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="thema" type="xs:string" />
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="subthema" type="xs:string" />
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="grondwetartikel">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" name="grondwetartikel">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="jaar" type="xs:unsignedShort" />
+                    <xs:element name="artikel" type="xs:unsignedByte" />
+                    <xs:element name="lid" type="xs:string" />
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="fragment" type="xs:string" />
+        <xs:element name="personen">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="persoon">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="persoon" type="xs:string" />
+                    <xs:element name="opmerkingen" type="xs:string" />
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="overige_actoren" />
+        <xs:element name="literatuur">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="literatuur">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="literatuur" type="xs:string" />
+                    <xs:element name="opmerkingen" type="xs:string" />
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="samenhangende_stukken">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" name="stukken">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="stuk" type="xs:string" />
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="waardering1" type="xs:string" />
+        <xs:element name="waardering2" type="xs:string" />
+        <xs:element name="waardering3" />
+        <xs:element name="wt1" type="xs:string" />
+        <xs:element name="wt2" />
+        <xs:element name="wt3" />
+        <xs:element name="wt4" type="xs:string" />
+        <xs:element name="wt5" type="xs:string" />
+        <xs:element name="definitief" />
+        <xs:element name="aantekeningen" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
+

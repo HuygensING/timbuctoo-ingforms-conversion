@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="factsheetcommissie">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="herzieningsjaar" type="xs:string" />
+        <xs:element name="naam_voorzitter" type="xs:string" />
+        <xs:element name="officiele_naam" type="xs:string" />
+        <xs:element name="naamsvarianten" />
+        <xs:element name="opdracht" type="xs:string" />
+        <xs:element name="jaren" type="xs:string" />
+        <xs:element name="kb_instelling" type="xs:string" />
+        <xs:element name="kb_ontbinding" type="xs:string" />
+        <xs:element name="aantal_bijeenkomsten" type="xs:unsignedByte" />
+        <xs:element name="datum_eindverslag" type="xs:string" />
+        <xs:element name="datum_aanbieding_aan_tk" type="xs:string" />
+        <xs:element name="samenstelling">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" name="persoon">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="naam" type="xs:string" />
+                    <xs:element name="functies">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="functie" type="xs:string" />
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="partij" type="xs:string" />
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="subcommissies" type="xs:string" />
+        <xs:element name="verslagen" type="xs:string" />
+        <xs:element name="literatuur" type="xs:string" />
+        <xs:element name="av_bronnen" />
+        <xs:element name="opmerkingen" />
+        <xs:element name="aangemaakt_door" type="xs:string" />
+        <xs:element name="gewijzigd_door" type="xs:string" />
+        <xs:element name="gewijzigd_op" type="xs:string" />
+        <xs:element name="aantekeningen" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
+

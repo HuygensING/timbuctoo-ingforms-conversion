@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="verwijzingsheetactoren">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="naam_staatscommissie" type="xs:string" />
+        <xs:element name="overige_betrokkenen">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" name="persoon">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="naam" type="xs:string" />
+                    <xs:element name="collectie" />
+                    <xs:element name="vindplaats" />
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="overige_betrokkenen_instellingen">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="instelling">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="naam" type="xs:string" />
+                    <xs:element name="collectie" />
+                    <xs:element name="vindplaats" />
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="opmerkingen" />
+        <xs:element name="aangemaakt_door" type="xs:string" />
+        <xs:element name="gewijzigd_door" />
+        <xs:element name="gewijzigd_op" type="xs:string" />
+        <xs:element name="aantekeningen" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
+

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created with Liquid Technologies Online Tools 1.0 (https://www.liquid-technologies.com) -->
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="autopsierapportpersonen">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="naam" type="xs:string" />
+        <xs:element name="naam_archiefcollectie" type="xs:string" />
+        <xs:element name="periode_archief" type="xs:string" />
+        <xs:element name="vindplaats" type="xs:string" />
+        <xs:element name="openbaarheid" type="xs:string" />
+        <xs:element name="soort_toegang" type="xs:string" />
+        <xs:element name="kenmerk_toegang" type="xs:string" />
+        <xs:element name="inventaris_geraadpleegd" type="xs:string" />
+        <xs:element name="stukken_geraadpleegd" type="xs:string" />
+        <xs:element name="staatscommissie">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" name="in_staatscommissie">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="commissie" type="xs:string" />
+                    <xs:element name="inhoud" type="xs:string" />
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="waardering_belang_archivalia" />
+        <xs:element name="bijzondere_stukken" />
+        <xs:element name="opmerkingen_overig" type="xs:string" />
+        <xs:element name="inventaris_bewerkt_door" type="xs:string" />
+        <xs:element name="stukken_bewerkt_door" type="xs:string" />
+        <xs:element name="gewijzigd_door" type="xs:string" />
+        <xs:element name="gewijzigd_op" type="xs:string" />
+        <xs:element name="definitief" />
+        <xs:element name="aantekeningen" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
+
