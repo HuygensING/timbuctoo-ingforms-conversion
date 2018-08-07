@@ -38,8 +38,8 @@ class MyListener
 	@resource = resource
 	@teller = teller
 	@in_thema = false
+	@themas = Array.new
 	@text = ""
-	@indent = "  "
 	@current_tag = ""
 	@tags = Array.new
 	@teller = teller + 1
@@ -149,11 +149,11 @@ EOF
 		    opmerking = "#{indent}        <avmat:opmerkingen rdf:parseType=\"Literal\">#{opm}</avmat:opmerkingen>"
 		end
 		output =<<EOF
-#{indent}    <rdf:Bag>
-#{indent}      <avmat:persoon>
+#{indent}    <avmat:persoon>
+#{indent}      <rdf:Bag>
 #{persoon}#{opmerking}
-#{indent}      </avmat:persoon>
-#{indent}    <rdf:Bag>
+#{indent}      </rdf:Bag>
+#{indent}    </avmat:persoon>
 EOF
 		@output.puts output
 	    end
@@ -165,36 +165,58 @@ EOF
     end
 
     def thema_start attrs
-	@current_tag = "#{@indent}<avmat:#{name}>"
+#	@output.puts @current_tag if !@current_tag.empty?
+	@newline = true
+	@current_tag = "#{indent}<avmat:thema>"
 	@in_thema = true
     end
 
-#    def thema_end
+    def thema_end
 #	unless @current_tag.empty?
-#	    @output.puts "#{@indent}<fc:#{name} />"
+#	    @output.puts "#{indent}<fc:#{name} />"
 #	else
 #	    @output.puts "</avmat:#{name}>"
 #	end
-#	@indent = @indent[0..-3]
 #	@current_tag = ""
-#	@in_thema = false
-#    end
+#		if !@current_tag.empty?
+#		    @output.puts "#{indent}<avmat:thema />"
+#		else
+#		    @output.puts "#{indent}</avmat:thema>"
+#		end
+	if parent.eql?("avmat")
+	    if @themas.empty?
+		@output.puts "#{indent}<avmat:themas />"
+	    else
+	    @output.puts "#{indent}<avmat:themas>"
+	    @output.puts "#{indent}  <rdf:Seq>"
+	    @themas.each do |th|
+		thema = th[0]
+		thema_str = "#{indent}        <avmat:thema>#{thema}</avmat:thema>"
+		subthema = th[1]
+		subthem_str = "\n#{indent}        <avmat:subthema>#{subthema}</avmat:subthema>"
+	        themas_str =<<EOF
+#{indent}    <avmat:themepair>
+#{indent}      <rdf:Bag>
+#{indent}        <avmat:thema>#{thema}</avmat:thema>
+#{indent}        <avmat:subthema>#{subthema}</avmat:subthema>
+#{indent}      </rdf:Bag>
+#{indent}    </avmat:themepair>
+EOF
+	        @output.puts themas_str
+	    end
+	    @output.puts "#{indent}  </rdf:Seq>"
+	    @output.puts "#{indent}</avmat:themas>"
+	    end
+	    @new_line = true
+	    @in_thema = false
+	end
+    end
 
     def subthema_start attrs
-	@current_tag = "#{@indent}<avmat:#{name}>"
-	@in_thema = true
     end
 
-#    def subthema_end
-#	unless @current_tag.empty?
-#	    @output.puts "#{@indent}<fc:#{name} />"
-#	else
-#	    @output.puts "</avmat:#{name}>"
-#	end
-#	@indent = @indent[0..-3]
-#	@current_tag = ""
-#	@in_thema = false
-#    end
+    def subthema_end
+    end
 
     def matsoort_start attrs
 	@output.puts "#{indent}<avmat:matsoort>"
@@ -255,8 +277,12 @@ EOF
 	literal "opmerkingen" unless @in_persoon
     end
 
+    def status_start attrs
+	literal "status" unless @in_persoon
+    end
+
     def indent
-	@new_line ? @indent = "  " * (@tags.size) : @indent = ""
+	@new_line ? "  " * (@tags.size) : ""
     end
 
     def tag_start(name,attrs)
@@ -305,6 +331,19 @@ EOF
 		@year = text if current.eql?("year")
 		@month = text if current.eql?("month")
 		@day = text if current.eql?("day")
+	    elsif @in_thema
+		    begin
+		    if current.eql?("thema")
+			@themas.push [text,""]
+		    elsif current.eql?("subthema")
+			thema = @themas.pop[0]
+			@themas.push [thema,text]
+		    end
+		    rescue => any
+			STDERR.puts any
+			STDERR.puts @current_name_id
+			exit 1
+		    end
 	    else
 		if !@current_tag.empty?
 		    @output.write @current_tag
@@ -394,7 +433,8 @@ if __FILE__ == $0
 
     STDERR.puts "parser voor avmat en, later, formulierselectie (deelproject3)"
     STDERR.puts "deze beiden bevatten keywords (thema's en subthema's"
-    STDERR.puts "deze thema's worden nu nog niet goed omgezet"
+    STDERR.puts "deze deze thema's worden nu nog niet goed omgezet"
+    STDERR.puts "dwz links naar const_comm/keywords"
     
     inputfile = ""
     directory = ""
