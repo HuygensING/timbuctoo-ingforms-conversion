@@ -50,6 +50,10 @@ class MyListener
 	@in_persoon = false
 	@zitting_in = Array.new
 	@new_line = false
+	@in_datum = false
+	@year = ""
+	@month = ""
+	@day = ""
 	line =<<EOF
   <rdf:Description rdf:about="#{resource}/avmat/#{@current_name_id}">
     <rdf:type rdf:resource="#{resource}/avmat" />
@@ -133,20 +137,23 @@ EOF
 	    @output.puts "#{indent}<avmat:personen>"
 	    @output.puts "#{indent}  <rdf:Seq>"
 	    @personen.each do |pers,opm|
+		# 
 		if pers.eql?("P000")
 		    persoon = ""
 		else
 		    persoon = "#{indent}      <avmat:naam rdf:resource=\"#{@resource}/person/#{pers}\" />\n"
 		end
 		if opm.empty?
-		    opmerking = "#{indent}      <avmat:opmerkingen rdf:parseType=\"Literal\" />"
+		    opmerking = "#{indent}        <avmat:opmerkingen rdf:parseType=\"Literal\" />"
 		else
-		    opmerking = "#{indent}      <avmat:opmerkingen rdf:parseType=\"Literal\">#{opm}</avmat:opmerkingen>"
+		    opmerking = "#{indent}        <avmat:opmerkingen rdf:parseType=\"Literal\">#{opm}</avmat:opmerkingen>"
 		end
 		output =<<EOF
-#{indent}    <avmat:persoon>
+#{indent}    <rdf:Bag>
+#{indent}      <avmat:persoon>
 #{persoon}#{opmerking}
-#{indent}    </avmat:persoon>
+#{indent}      </avmat:persoon>
+#{indent}    <rdf:Bag>
 EOF
 		@output.puts output
 	    end
@@ -203,8 +210,20 @@ EOF
 	@output.puts "#{indent}</avmat:matsoort>"
     end
 
+    def datum_start attrs
+	@in_datum = true
+    end
+
+    def datum_end
+	jaar = @year.empty? ? "" : @year
+	maand = @month.empty? ? "" : "-#{@month}"
+	dag = @day.empty? ? "" : "-#{@day}"
+	@output.puts "#{indent}<avmat:datum>#{jaar}#{maand}#{dag}</avmat:datum>"
+	@in_datum = false
+    end
+
     def literal name
-	@output.write "#{@indent}<avmat:#{name} rdf:parseType=\"Literal\">"
+	@output.write "#{indent}<avmat:#{name} rdf:parseType=\"Literal\">"
 	@new_line = false
     end
 
@@ -214,6 +233,10 @@ EOF
 
     def beschrijving_start attrs
 	literal "beschrijving"
+    end
+
+    def bijschrift_start attrs
+	literal "bijschrift"
     end
 
     def kosten_start attrs
@@ -278,6 +301,10 @@ EOF
 		    text = "#{tekst}#{text}" if !tekst.empty?
 		    @personen << [persoon,text]
 		end
+	    elsif @in_datum
+		@year = text if current.eql?("year")
+		@month = text if current.eql?("month")
+		@day = text if current.eql?("day")
 	    else
 		if !@current_tag.empty?
 		    @output.write @current_tag
@@ -296,7 +323,7 @@ EOF
 	    result = self.send( "#{name}_end" )
 	rescue => detail
 	    STDERR.puts "rescue end: #{detail}" if name.match(/commissie/)
-	    if !@in_persoon
+	    if !@in_persoon && !@in_datum
 		if !@current_tag.empty?
 		    @output.puts "#{indent}<fc:#{name} />"
 		else
@@ -367,6 +394,7 @@ if __FILE__ == $0
 
     STDERR.puts "parser voor avmat en, later, formulierselectie (deelproject3)"
     STDERR.puts "deze beiden bevatten keywords (thema's en subthema's"
+    STDERR.puts "deze thema's worden nu nog niet goed omgezet"
     
     inputfile = ""
     directory = ""
@@ -405,10 +433,10 @@ if __FILE__ == $0
 <?xml version="1.0"?>
 <rdf:RDF
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-    xmlns:fc="https://resource.huygens.knaw.nl/constitutionele_commissies/fc"
-    xmlns:person="https://resource.huygens.knaw.nl/constitutionele_commissies/person"
-    xmlns:keyword="https://resource.huygens.knaw.nl/constitutionele_commissies/keyword"
-    xmlns:avmat="https://resource.huygens.knaw.nl/constitutionele_commissies/avmat">
+    xmlns:fc="https://resource.huygens.knaw.nl/const_comm/fc"
+    xmlns:person="https://resource.huygens.knaw.nl/const_comm/person"
+    xmlns:keyword="https://resource.huygens.knaw.nl/const_comm/keyword"
+    xmlns:avmat="https://resource.huygens.knaw.nl/const_comm/avmat">
 
 EOF
 	    outputfile.puts rdf_rdf
