@@ -1,0 +1,132 @@
+
+    def tag_start(name,attrs)
+        if table.has_key? name
+            name = table[name][@level] if table[name].has_key?(@level)
+        end
+        if table.has_key? name
+            name = table[name][0] if table[name][1]==@level
+        end
+        if @level==1
+            code = "#{name[0].upcase}#{@number}"
+        lines =<<EOF
+
+
+  <rdf:Description rdf:about="https://resource.huygens.knaw.nl/ingforms/#{@collection}/#{name}/#{code}">
+    <rdf:type rdf:resource="https://resource.huygens.knaw.nl/ingforms/#{@collection}/#{name}" />
+EOF
+            put_out lines
+        else
+            begin
+                result = self.send( "#{name}_start", attrs )
+                rescue => detail
+#                    STDERR.puts "#{detail}\nin #{name}"
+                end
+#            return result
+        end
+        @level += 1
+        @indent = "  " * @level
+    end
+
+    def text( text )
+        unless text.strip.empty?
+            put_out "#{text.strip}"
+#            @text << text
+        end
+    end
+
+    def tag_end(name)
+        if table.has_key? name
+            name = table[name][@level-1] if table[name].has_key?(@level-1)
+        end
+        if @level==2
+            @output.puts "\n  </rdf:Description>"
+        else
+            begin
+                result = self.send( "#{name}_end" )
+                rescue => detail
+#                    STDERR.puts "end: #{detail}\nin #{name}"
+                end
+#            return result
+        end
+        @level -= 1
+        @indent = "  " * @level
+    end
+
+    def put_out( arg )
+        @output.write arg
+        arg
+    end
+
+end
+
+def help_message
+    STDERR.puts "use: ruby parser -d directory -c collection -o output"
+    exit(0)
+end
+
+if __FILE__ == $0
+
+    inputfile = ""
+    directory = ""
+    outputfile = ""
+    collection = ""
+    # evt aanpassen:
+    resource = "https://resource.huygens.knaw.nl/ingforms/const_comm"
+
+    (0..(ARGV.size-1)).each do |i|
+        case ARGV[i]
+            # voeg start en stop tags toe
+            when '-i' then begin inputfile = ARGV[i+1] end
+            when '-d' then begin directory = ARGV[i+1] end
+            when '-c' then begin collection = ARGV[i+1] end
+            when '-o' then begin outputfile = ARGV[i+1] end
+            when '-r' then begin resource = ARGV[i+1] end
+            when '-h' then
+                begin
+                    STDERR.puts "use: ruby parser -i input -o output"
+                    exit(0)
+                end
+            end
+    end
+
+    if directory.empty? || outputfile.empty? || collection.empty?
+        help_message
+    end
+
+    afk = collection[0]
+    output = File.new(outputfile,"w")
+    # aanpassen:
+    rdf_rdf =<<EOF
+<?xml version="1.0"?>
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:#{afk}="https://resource.huygens.knaw.nl/#{collection}/#{afk}"
+    xmlns:fc="https://resource.huygens.knaw.nl/constitutionele_commissies/fc"
+    xmlns:person="https://resource.huygens.knaw.nl/constitutionele_commissies/person">
+EOF
+
+    output.puts rdf_rdf
+
+    if File.directory?(directory)
+        number = 1
+        wd = Dir.getwd
+        Dir.chdir(directory)
+        file_list = Dir.glob("**/*.xml")
+        file_list.each do |filename|
+            #STDERR.puts filename
+            Parser.parseFile(filename,output,collection,afk,number)
+            number += 1
+        end
+
+    end
+    
+    rdf_rdf =<<EOF
+
+</rdf:RDF>
+
+EOF
+
+    output.puts rdf_rdf
+    
+end
+

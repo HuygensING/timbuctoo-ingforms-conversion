@@ -1,0 +1,48 @@
+require 'open-uri'
+require 'rexml/document'
+require 'rexml/streamlistener'
+require 'rubygems'
+require 'cgi'
+#require 'htmlentities'
+
+include REXML
+
+
+class Parser
+
+    def Parser.parseFile(inputfilename,outputfilename,collection,afk,number)
+        listener = MyListener.new(outputfilename,collection,afk,number)
+        source = File.new File.expand_path(inputfilename)
+        Document.parse_stream(source, listener)
+        listener.closing_lines
+        source.close
+    end
+
+    def Parser.parseString(id,xml,output_file,collection,afk)
+        listener = MyListener.new(output_file,collection,afk,1)
+        Document.parse_stream(xml, listener)
+    end
+
+end
+
+
+class MyListener
+    include StreamListener
+
+    def closing_lines
+        rdf_rdf =<<EOF
+  </rdf:Description>
+
+EOF
+#        @output.puts rdf_rdf
+#        @output.puts
+    end
+
+    def initialize(outputfile,collection,afk,number)
+        @output = outputfile
+        @level = 1
+        @indent = ""
+        @collection = collection
+        @afk = afk
+        @number = number
+        @seq = ""
