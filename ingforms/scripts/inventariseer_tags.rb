@@ -44,6 +44,10 @@ class Tag
 	@level
     end
 
+    def get_literal
+	@literal
+    end
+
     def get_name
 	@name
     end
@@ -86,6 +90,7 @@ class Tag
 		get_child(k).merge v
 	    end
 	end
+	set_literal (get_literal || tag.get_literal)
 	return true
     end
 
