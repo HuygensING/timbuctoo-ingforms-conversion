@@ -7,7 +7,8 @@
             name = table[name][0] if table[name][1]==@level
         end
         if @level==1
-            code = "#{name[0].upcase}#{@number}"
+#            code = "#{name[0].upcase}#{@number}"
+            code = sprintf("%s%06d",name[0].upcase,@number)
         lines =<<EOF
 
 
@@ -29,6 +30,7 @@ EOF
 
     def text( text )
         unless text.strip.empty?
+	    text.gsub!(/ & /," &amp; ")
             put_out "#{text.strip}"
 #            @text << text
         end
@@ -81,12 +83,8 @@ if __FILE__ == $0
             when '-c' then begin collection = ARGV[i+1] end
             when '-o' then begin outputfile = ARGV[i+1] end
             when '-r' then begin resource = ARGV[i+1] end
-            when '-h' then
-                begin
-                    STDERR.puts "use: ruby parser -i input -o output"
-                    exit(0)
-                end
-            end
+            when '-h' then begin help_message end
+        end
     end
 
     if directory.empty? || outputfile.empty? || collection.empty?

@@ -54,10 +54,6 @@ end
 
 if __FILE__ == $0
 
-    STDERR.puts ""
-    STDERR.puts ""
-    STDERR.puts ""
-    
     inputfilename = ""
     outputfilename = ""
 
@@ -108,8 +104,8 @@ if __FILE__ == $0
 			    table[old] = {}
 			    table[old][level] = new
 			end
-			STDERR.puts "md.pre_match.size: #{md.pre_match.size}"
-			STDERR.puts "old: #{old} - new: #{new} - level: #{level}"
+#			STDERR.puts "md.pre_match.size: #{md.pre_match.size}"
+#			STDERR.puts "old: #{old} - new: #{new} - level: #{level}"
 		    end
 		    if tags.include? tag
 		        STDERR.puts "multiple #{tag}"
@@ -125,15 +121,6 @@ if __FILE__ == $0
 	end
     end
 
-    table.each do |k,v|
-	puts "k: #{k}"
-	puts "v: #{v}"
-	v.each do |a,b|
-	    puts "a: #{a} - b: #{b}"
-	end
-    end
-    puts table
- 
     table_def =<<EOF
     def table
        	#{table}
