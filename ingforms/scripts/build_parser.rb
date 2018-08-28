@@ -10,6 +10,8 @@ def make_start_end item,output,property=""
     if property.eql?("literal")
 	prop = ' rdf:parseType=\"Literal\"'
     elsif property.eql?("B")
+	seq = "rdf:Bag"
+    elsif property.eql?("R")
 	prop = ' rdf:parseType=\"Resource\"'
     elsif property.eql?("S")
 	seq = "rdf:Seq"
@@ -20,7 +22,7 @@ def make_start_end item,output,property=""
 EOF
     if !seq.empty?
         start +=<<EOF
-  	put_out "\\n#\{@indent}<rdf:Seq>"
+  	put_out "\\n#\{@indent}<#{seq}>"
 EOF
     end
     start +=<<EOF
@@ -34,7 +36,7 @@ EOF
 EOF
     if !seq.empty?
 	stop +=<<EOF
-  	@output.puts "\\n#\{@indent}</rdf:Seq>"
+  	@output.puts "\\n#\{@indent}</#{seq}>"
         indent = "  " * (@level - 1)
   	put_out "#\{indent}"
 EOF

@@ -31,6 +31,8 @@ EOF
     def text( text )
         unless text.strip.empty?
 	    text.gsub!(/ & /," &amp; ")
+	    text.gsub!(/<br ([^>]*)>/,"<br \\1/>")
+	    text.gsub!("//>","/>")
             put_out "#{text.strip}"
 #            @text << text
         end
