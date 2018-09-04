@@ -111,13 +111,13 @@ if __FILE__ == $0
 		    end
 		    if tags.include? tag
 		        STDERR.puts "multiple #{tag}"
-		    else
-			md_2 = line.match(/\(([^()]*)\)$/)
-			property = ""
-			property = md_2[1] if !md_2.nil?
-		        make_start_end tag,output,property
-			tags << tag
+		        STDERR.puts "eventueel aanpassen!!!"
 		    end
+		    md_2 = line.match(/\(([^()]*)\)$/)
+		    property = ""
+		    property = md_2[1] if !md_2.nil?
+		        make_start_end tag,output,property
+		    tags << tag
 		end
 	    end
 	end
