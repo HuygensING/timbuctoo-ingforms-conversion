@@ -107,7 +107,7 @@ class Tag
 	result = ""
 	indent = "  " * @level
 	occurrences = ""
-	occurrences = " (#{get_occurrences})" unless @level==0
+	occurrences = " (#{get_occurrences})" #unless @level==0
 	literal = ""
 	literal = " (literal)" if @literal
 	result += "#{indent}<#{@name}>#{occurrences}#{literal}\n"
@@ -123,10 +123,16 @@ class Parser
 
     def Parser.parseFile(inputfilename,outputfile,tags)
 	listener = MyListener.new(outputfile,tags)
+	begin 
 	source = File.new File.expand_path(inputfilename)
 	Document.parse_stream(source, listener)
 	source.close
 	listener.return_value.add_path(File.expand_path(File.dirname(inputfilename)))
+	listener.return_value
+	rescue => any
+	    STDERR.puts any
+	    STDERR.puts inputfilename
+	end
 	listener.return_value
     end
 
@@ -243,6 +249,7 @@ if __FILE__ == $0
 	else
 	    if tags.has_key?(result.get_name)
 		tags[result.get_name].merge result
+		tags[result.get_name].inc_occurrences
 	    else
 		tags[result.get_name] = result
 	    end
