@@ -36,7 +36,15 @@ EOF
 	    text.gsub!(/&amp;amp;/,"&amp;")
 	    text.gsub!(/<br ([^>]*)>/,"<br \\1/>")
 	    text.gsub!("//>","/>")
-            put_out "#{text.strip}"
+	    if @in_jaar
+		@jaar = text.strip
+	    elsif @in_maand
+		@maand = text.strip
+	    elsif @in_dag
+		@dag = text.strip
+	    else
+		put_out "#{text.strip}"
+	    end
 #            @text << text
         end
     end
@@ -62,6 +70,16 @@ EOF
     def put_out( arg )
         @output.write arg
         arg
+    end
+
+    def verwerk_datum
+        if !@maand.empty?
+ 	    maand = sprintf("-%02d",@maand.to_i)
+        end
+        if !@dag.empty?
+ 	    dag = sprintf("-%02d",@dag.to_i)
+        end
+        return "#{@jaar}#{maand}#{dag}"
     end
 
 end

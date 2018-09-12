@@ -46,3 +46,10 @@ EOF
         @afk = afk
         @number = number
         @seq = ""
+        @in_datum = false
+        @in_dag = false
+        @dag = ""
+        @in_maand = false
+        @maand = ""
+        @in_jaar = false
+        @jaar = ""

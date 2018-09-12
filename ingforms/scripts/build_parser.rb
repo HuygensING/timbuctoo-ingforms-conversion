@@ -15,6 +15,8 @@ def make_start_end item,output,property=""
 	prop = ' rdf:parseType=\"Resource\"'
     elsif property.eql?("S")
 	seq = "rdf:Seq"
+    elsif property.eql?("D")
+	prop = " rdf:datatype=\\\"http://www.w3.org/2001/XMLSchema#date\\\""
     end
     start =<<EOF
     def #{item}_start attrs
@@ -25,6 +27,7 @@ EOF
   	put_out "\\n#\{@indent}<#{seq}>"
 EOF
     end
+    start += "        @in_datum = true\n" if property.eql?("D")
     start +=<<EOF
     end
 
@@ -34,6 +37,10 @@ EOF
     stop =<<EOF
     def #{item}_end
 EOF
+    if property.eql?("D")
+        stop += "        @in_datum = false\n"
+  	stop += "        put_out verwerk_datum\n"
+    end
     if !seq.empty?
 	stop +=<<EOF
   	@output.puts "\\n#\{@indent}</#{seq}>"
