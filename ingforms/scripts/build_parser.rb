@@ -27,7 +27,14 @@ EOF
   	put_out "\\n#\{@indent}<#{seq}>"
 EOF
     end
-    start += "        @in_datum = true\n" if property.eql?("D")
+    if property.eql?("D")
+        start +=<<EOF
+        @in_datum = true
+        @dag = ""
+        @maand = ""
+        @jaar = ""
+EOF
+    end
     start +=<<EOF
     end
 
