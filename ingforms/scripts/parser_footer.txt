@@ -122,6 +122,7 @@ if __FILE__ == $0
 <rdf:RDF
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:#{afk}="https://resource.huygens.knaw.nl/#{collection}/#{afk}"
+    xmlns:schema="http://schema.org/"
     xmlns:fc="https://resource.huygens.knaw.nl/constitutionele_commissies/fc"
     xmlns:person="https://resource.huygens.knaw.nl/constitutionele_commissies/person">
 EOF
